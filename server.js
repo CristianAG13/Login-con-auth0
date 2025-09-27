@@ -12,17 +12,38 @@ var path = require('path');
 let app = express();
 
 // Globals
-const PORT = process.env.PORT ;
-const SECRET = process.env.AUTH0_SECRET ;
+const PORT = process.env.PORT || 3000;
+const SECRET = process.env.AUTH0_SECRET;
+
+// Validate required environment variables
+if (!SECRET) {
+  console.error('ERROR: AUTH0_SECRET is required but not set in environment variables');
+  process.exit(1);
+}
+
+if (!process.env.AUTH0_DOMAIN) {
+  console.error('ERROR: AUTH0_DOMAIN is required but not set in environment variables');
+  process.exit(1);
+}
+
+if (!process.env.AUTH0_CLIENT_ID) {
+  console.error('ERROR: AUTH0_CLIENT_ID is required but not set in environment variables');
+  process.exit(1);
+}
+
+if (!process.env.AUTH0_BASE_URL) {
+  console.error('ERROR: AUTH0_BASE_URL is required but not set in environment variables');
+  process.exit(1);
+}
 
 // Auth0 configuration
 const config = {
   authRequired: false,
   auth0Logout: true,
   secret: SECRET,
-  baseURL: process.env.AUTH0_BASE_URL ,
-  clientID: process.env.AUTH0_CLIENT_ID ,
-  issuerBaseURL: `https://${process.env.AUTH0_DOMAIN}` 
+  baseURL: process.env.AUTH0_BASE_URL,
+  clientID: process.env.AUTH0_CLIENT_ID,
+  issuerBaseURL: `https://${process.env.AUTH0_DOMAIN}`
 };
 
 // auth router attaches /login, /logout, and /callback routes to the baseURL
@@ -39,7 +60,9 @@ app.use("/static", express.static("static"));
 
 app.use(session({
   cookie: { httpOnly: true },
-  secret: SECRET
+  secret: SECRET,
+  resave: false,
+  saveUninitialized: false
 }));
 
 // App routes
